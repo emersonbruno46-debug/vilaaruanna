@@ -1863,30 +1863,30 @@
     }
 
     /* ============================================
-       SCROLL ANIMATIONS (BIDIRECTIONAL)
+       SCROLL ANIMATIONS (RICH & BIDIRECTIONAL)
     ============================================ */
     .reveal {
       opacity: 0;
-      transform: translateY(36px);
-      transition: opacity 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                  transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform: translateY(48px) scale(0.97);
+      transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: opacity, transform;
     }
 
     .reveal--from-top {
       opacity: 0;
-      transform: translateY(-36px);
+      transform: translateY(-48px) scale(0.97);
     }
 
     .reveal--visible {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
 
-    .reveal--delay-1 { transition-delay: 100ms; }
-    .reveal--delay-2 { transition-delay: 200ms; }
-    .reveal--delay-3 { transition-delay: 300ms; }
-    .reveal--delay-4 { transition-delay: 400ms; }
+    .reveal--delay-1 { transition-delay: 120ms; }
+    .reveal--delay-2 { transition-delay: 240ms; }
+    .reveal--delay-3 { transition-delay: 360ms; }
+    .reveal--delay-4 { transition-delay: 480ms; }
 
     /* ============================================
        PROGRESS INDICATOR
@@ -2899,19 +2899,15 @@
 
         const revealObserver = new IntersectionObserver(function(entries) {
           var currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          var isScrollingDown = currentScrollTop >= lastScrollTop;
 
           entries.forEach(function(entry) {
             if (entry.isIntersecting) {
               entry.target.classList.add('reveal--visible');
               entry.target.classList.remove('reveal--from-top');
             } else {
-              // When leaving viewport, reset so it re-animates smoothly on reverse scroll
               if (entry.boundingClientRect.top > 0) {
-                // Below viewport
                 entry.target.classList.remove('reveal--visible', 'reveal--from-top');
               } else {
-                // Above viewport
                 entry.target.classList.remove('reveal--visible');
                 entry.target.classList.add('reveal--from-top');
               }
@@ -2919,15 +2915,24 @@
           });
           lastScrollTop = currentScrollTop;
         }, {
-          threshold: 0.1,
-          rootMargin: '0px 0px -20px 0px'
+          threshold: 0.12,
+          rootMargin: '0px 0px -30px 0px'
         });
 
         revealElements.forEach(function(el) {
           revealObserver.observe(el);
         });
+
+        // Trigger immediate check for elements already in viewport
+        setTimeout(function() {
+          revealElements.forEach(function(el) {
+            var rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+              el.classList.add('reveal--visible');
+            }
+          });
+        }, 50);
       } else {
-        // Fallback: show all
         revealElements.forEach(function(el) {
           el.classList.add('reveal--visible');
         });
