@@ -1863,30 +1863,25 @@
     }
 
     /* ============================================
-       SCROLL ANIMATIONS (RICH & BIDIRECTIONAL)
+       SCROLL ANIMATIONS (SMOOTH & RELIABLE)
     ============================================ */
     .reveal {
       opacity: 0;
-      transform: translateY(48px) scale(0.97);
-      transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: opacity, transform;
-    }
-
-    .reveal--from-top {
-      opacity: 0;
-      transform: translateY(-48px) scale(0.97);
     }
 
     .reveal--visible {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0);
     }
 
-    .reveal--delay-1 { transition-delay: 120ms; }
-    .reveal--delay-2 { transition-delay: 240ms; }
-    .reveal--delay-3 { transition-delay: 360ms; }
-    .reveal--delay-4 { transition-delay: 480ms; }
+    .reveal--delay-1 { transition-delay: 100ms; }
+    .reveal--delay-2 { transition-delay: 200ms; }
+    .reveal--delay-3 { transition-delay: 300ms; }
+    .reveal--delay-4 { transition-delay: 400ms; }
 
     /* ============================================
        PROGRESS INDICATOR
@@ -2878,48 +2873,36 @@
       window.addEventListener('scroll', updateProgress, { passive: true });
 
       // ============================================
-      // SCROLL REVEAL ANIMATIONS (BIDIRECTIONAL)
+      // SCROLL REVEAL ANIMATIONS (RELIABLE)
       // ============================================
       const revealElements = document.querySelectorAll('.reveal');
 
       if ('IntersectionObserver' in window) {
-        var lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
         const revealObserver = new IntersectionObserver(function(entries) {
-          var currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
           entries.forEach(function(entry) {
             if (entry.isIntersecting) {
               entry.target.classList.add('reveal--visible');
-              entry.target.classList.remove('reveal--from-top');
-            } else {
-              if (entry.boundingClientRect.top > 0) {
-                entry.target.classList.remove('reveal--visible', 'reveal--from-top');
-              } else {
-                entry.target.classList.remove('reveal--visible');
-                entry.target.classList.add('reveal--from-top');
-              }
             }
           });
-          lastScrollTop = currentScrollTop;
         }, {
-          threshold: 0.12,
-          rootMargin: '0px 0px -30px 0px'
+          threshold: 0.05,
+          rootMargin: '0px 0px 50px 0px'
         });
 
         revealElements.forEach(function(el) {
           revealObserver.observe(el);
         });
 
-        // Trigger immediate check for elements already in viewport
-        setTimeout(function() {
+        function checkInitialReveals() {
           revealElements.forEach(function(el) {
             var rect = el.getBoundingClientRect();
-            if (rect.top < window.innerHeight && rect.bottom > 0) {
+            if (rect.top < window.innerHeight + 100) {
               el.classList.add('reveal--visible');
             }
           });
-        }, 50);
+        }
+        checkInitialReveals();
+        window.addEventListener('load', checkInitialReveals);
       } else {
         revealElements.forEach(function(el) {
           el.classList.add('reveal--visible');
